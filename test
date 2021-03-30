@@ -1,0 +1,59 @@
+import java.lang.reflect.Array;
+
+/**
+ * Implements top-down mergesort for int arrays.
+ */
+public class MergeSort {
+
+    /** Mergesort algorithm for int arrays (top-down variant). **/
+    public static void sort(int[] array) {
+        int[] tmp = new int[array.length];
+        sort(array, tmp, 0, array.length -1);
+
+    }
+
+    /**
+     * Sortiert das array zwischen Positionen lo und (einschliesslich) hi.
+     **/
+    private static void sort(int[] array, int[] tmp, int lo, int hi) {
+
+        if(hi <= lo){
+            return;
+        }
+        int mid = lo + ((hi - lo) / 2);
+        sort(array, tmp, lo, mid);
+        sort(array, tmp, mid + 1,  hi);
+        merge(array, tmp, lo, mid, hi);
+
+    }
+
+    /**
+     * Die Methode kombiniert zwei bereits sortierte, benachbarte Teilbereiche des
+     * Eingabearrays zu einer sortierten Folge.
+     * Es wird angenommen, dass array[lo] bis array[mid] und array[mid + 1] bis
+     * array[hi] bereits korrekt sortiert sind. Die sortierte Folge befindet sich
+     * am Ende in array[lo] bis array[hi].
+     **/
+    // Note: we only make this public to make it easily accessible for the
+    // unit test (we could also use reflection in the test but wanted to keep the
+    // code readable)
+    public static void merge(int[] array, int[] tmp, int lo, int mid, int hi) {
+
+        int i = lo;
+        int j = mid + 1;
+        for(int k=lo; k<hi+1; k++){
+            if (j > hi || (i <= mid && array[i] <= array[j])){
+                tmp[k] = array[i];
+                i+=1;
+            } else {
+                tmp[k] = array[j];
+                j+=1;
+            }
+        }
+        for(int k=lo; k<hi+1;k++){
+            array[k] = tmp[k];
+        }
+
+    }
+
+}
