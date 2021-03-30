@@ -20,7 +20,7 @@ object align {
 
       val dsGroup = ui.createGroup("datasets")
 
-      val meshFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/meshes/").listFiles.take(10)
+      val meshFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/meshes/").listFiles
       val (meshes, meshViews) = meshFiles.map(meshFile => {
         val mesh = MeshIO.readMesh(meshFile).get
         val meshView = ui.show(dsGroup, mesh, "mesh")
@@ -36,7 +36,7 @@ object align {
       /*val landmarks: Array[Seq[Landmark[_3D]]] =
         LandmarkIO.readLandmarksJson3D(new java.io.File("datasets/challenge-data/challengedata/full-femurs/landmarks/").listFiles).get
       */
-      var landmarksFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/landmarks/").listFiles.take(10)
+      var landmarksFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/landmarks/").listFiles
       //var refLandmarks = new java.io.File("data/femur.json")
 
       val landmarks: Array[Seq[Landmark[_3D]]]= landmarksFiles.map { file =>
@@ -50,8 +50,13 @@ object align {
         //val landmarks = pointIds.map{id => Landmark("L_"+id, mesh.pointSet.point(PointId(id)))}
         val rigidTrans = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks(i), refLandmarks, center = Point(0,0,0))
         val meshAligned = mesh.transform(rigidTrans)
-        i+=1
+        val landmarkAligned = landmarks(i).map(lm => lm.transform(rigidTrans))
         val meshView = ui.show(dsGroup2, meshAligned, "meshAligned")
+
+        LandmarkIO.writeLandmarksJson(landmarkAligned, new java.io.File("datasets/challenge-data/challengedata/aligned-full-femurs/landmarks/",landmarksFiles(i).getName)).get
+        MeshIO.writeMesh(meshAligned, new java.io.File("datasets/challenge-data/challengedata/aligned-full-femurs/meshes/",meshFiles(i).getName)).get
+
+        i+=1
       }
       /*val dc = DataCollection.fromTriangleMesh3DSequence(reference, alignedMeshes)
       val modelFromDataCollection = PointDistributionModel.createUsingPCA(dc)
