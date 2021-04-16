@@ -58,16 +58,6 @@ object align {
 
         i+=1
       }
-      /*val dc = DataCollection.fromTriangleMesh3DSequence(reference, alignedMeshes)
-      val modelFromDataCollection = PointDistributionModel.createUsingPCA(dc)
 
-      val modelGroup2 = ui.createGroup("modelGroup2")
-      ui.show(modelGroup2, modelFromDataCollection, "ModelDC")
-
-      val dcWithGPAAlignedShapes = DataCollection.gpa(dc)
-      val modelFromDataCollectionGPA = PointDistributionModel.createUsingPCA(dcWithGPAAlignedShapes)
-
-      val modelGroup3 = ui.createGroup("modelGroup3")
-      ui.show(modelGroup3, modelFromDataCollectionGPA, "ModelDCGPA")*/
     }
 }
