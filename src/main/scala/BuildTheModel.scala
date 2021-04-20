@@ -24,7 +24,6 @@ object BuildTheModel {
       val model = PointDistributionModel(referenceMesh, lowRankGP)
       val sample3 = model.sample()
       ui.show(ui.createGroup("model"), model, "gp-model")
-      // write it out for later use
       StatisticalModelIO.writeStatisticalTriangleMeshModel3D(model, new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/GaussianProcessModel.lefile"))
     }
 }

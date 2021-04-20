@@ -19,7 +19,6 @@ object align {
       val ui = ScalismoUI()
 
       val dsGroup = ui.createGroup("datasets")
-
       val meshFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/meshes/").listFiles
       val (meshes, meshViews) = meshFiles.map(meshFile => {
         val mesh = MeshIO.readMesh(meshFile).get
@@ -33,21 +32,15 @@ object align {
       val refLandmarks: Seq[Landmark[_3D]] =
         LandmarkIO.readLandmarksJson3D(new java.io.File("data/femur.json")).get
 
-      /*val landmarks: Array[Seq[Landmark[_3D]]] =
-        LandmarkIO.readLandmarksJson3D(new java.io.File("datasets/challenge-data/challengedata/full-femurs/landmarks/").listFiles).get
-      */
       var landmarksFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/landmarks/").listFiles
-      //var refLandmarks = new java.io.File("data/femur.json")
 
       val landmarks: Array[Seq[Landmark[_3D]]]= landmarksFiles.map { file =>
         LandmarkIO.readLandmarksJson3D(file).get
       }
 
       var i = 0
-
       val dsGroup2 = ui.createGroup("datasetsAligned")
       val alignedMeshes = toAlign.map { mesh =>
-        //val landmarks = pointIds.map{id => Landmark("L_"+id, mesh.pointSet.point(PointId(id)))}
         val rigidTrans = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks(i), refLandmarks, center = Point(0,0,0))
         val meshAligned = mesh.transform(rigidTrans)
         val landmarkAligned = landmarks(i).map(lm => lm.transform(rigidTrans))

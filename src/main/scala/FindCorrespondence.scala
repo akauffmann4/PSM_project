@@ -81,9 +81,7 @@ object FindCorrespondence {
         //ui.show(resultGroup, finalFit, "final fit")
 
         MeshIO.writeMesh(finalFit, new java.io.File(s"datasets/challenge-data/challengedata/coresponded-full-femurs/meshes/$i.stl")).get
-
       }
-
 
       val meshFiles = new java.io.File("datasets/challenge-data/challengedata/coresponded-full-femurs/meshes/").listFiles
       val (meshes) = meshFiles.map(meshFile => {
@@ -98,6 +96,7 @@ object FindCorrespondence {
       val modelFromDataCollection = PointDistributionModel.createUsingPCA(dc)
 
       val modelGroup2 = ui.createGroup("modelGroup2")
-      ui.show(modelGroup2, modelFromDataCollection, "ModelDC")
+      ui.show(modelGroup2, modelFromDataCollection, "PCAModel")
+      StatisticalModelIO.writeStatisticalTriangleMeshModel3D(modelFromDataCollection, new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/PCAModel.lefile"))
     }
 }
