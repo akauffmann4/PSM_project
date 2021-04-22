@@ -27,10 +27,10 @@ object Reconstruction {
 
       val PCAmodel = ui.createGroup("modelGroup")
       ui.show(PCAmodel, PCAModel, "model")
-
+      //var lastmesh = PCAModel.mean
       //Selects the points for which we want to find the correspondences - uniformly distributed on the surface
-      val sampler = UniformMeshSampler3D(PCAModel.mean, numberOfPoints = 100)//OPERATION: reference/target
-      val points: Seq[Point[_3D]] = sampler.sample.map(pointWithProbability => pointWithProbability._1).filter(pt => pt.z<= 2.0) // we only want the points
+      val sampler = UniformMeshSampler3D(targetTest, numberOfPoints = 5000)//OPERATION: reference/target
+      val points: Seq[Point[_3D]] = sampler.sample.map(pointWithProbability => pointWithProbability._1)//.filter(pt => pt.z<= 2.0) // we only want the points
 
       //Uses point ids of the sampled points
       val ptIds = points.map(point => PCAModel.mean.pointSet.findClosestPoint(point).id)//OPERATION: reference/target
@@ -41,11 +41,6 @@ object Reconstruction {
         ptIds.map { id: PointId =>
           val pt = PCAModel.mean.pointSet.point(id)//OPERATION: reference/target
           val closestPointOnMesh2 = movingMesh.pointSet.findClosestPoint(pt).point//OPERATION: reference/target
-          //Uncomment next 4 lines to see the landmarks
-          //val paolaLandmark = Landmark(s"lm-${id}", closestPointOnMesh2)
-          //val paolaLandmarks = Landmark(s"lms-${id}", pt)
-          //ui.show(Vectors, paolaLandmarks, paolaLandmarks.id) //Show landmarks from mesh to be projected
-          //ui.show(Vectors, paolaLandmark, paolaLandmark.id) //Show landmarks from projected mesh
 
           (id, closestPointOnMesh2)
         }
@@ -68,6 +63,7 @@ object Reconstruction {
         else {
           val correspondences = attributeCorrespondences(movingMesh, ptIds)
           val transformed = fitModel(correspondences)
+          //lastmesh = transformed
           //ui.show(resultGroup, transformed, numberOfIterations.toString)
           nonrigidICP(transformed, ptIds, numberOfIterations - 1)
         }
