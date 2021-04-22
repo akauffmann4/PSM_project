@@ -19,9 +19,9 @@ object FindCorrespondence {
       val ui = ScalismoUI()
 
       var i = 10;
-      for (i <- 46 until 47)
+      for (i <- 0 until 47)
       {
-
+        System.out.println(i)
         val targetMesh = MeshIO.readMesh(new java.io.File(s"datasets/challenge-data/challengedata/aligned-full-femurs/meshes/$i.stl")).get
         val model = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/GaussianProcessModel.h5")).get
 
@@ -46,9 +46,6 @@ object FindCorrespondence {
           }
         }
 
-
-        val correspondences = attributeCorrespondences(model.mean, ptIds)
-
         val littleNoise = MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3))
 
         def fitModel(correspondences: Seq[(PointId, Point[_3D])]): TriangleMesh[_3D] = {
@@ -59,26 +56,17 @@ object FindCorrespondence {
           posterior.mean
         }
 
-        val fit = fitModel(correspondences)
-        //val resultGroup = ui.createGroup("results")
-        //val fitResultView = ui.show(resultGroup, fit, "fit")
-
         //we iterate the procedure
         def nonrigidICP(movingMesh: TriangleMesh[_3D], ptIds: Seq[PointId], numberOfIterations: Int): TriangleMesh[_3D] = {
           if (numberOfIterations == 0) movingMesh
           else {
             val correspondences = attributeCorrespondences(movingMesh, ptIds)
             val transformed = fitModel(correspondences)
-
-            //ui.show(resultGroup, transformed , "partial fit")
-
             nonrigidICP(transformed, ptIds, numberOfIterations - 1)
           }
         }
 
         val finalFit = nonrigidICP(model.mean, ptIds, 20)
-
-        //ui.show(resultGroup, finalFit, "final fit")
 
         MeshIO.writeMesh(finalFit, new java.io.File(s"datasets/challenge-data/challengedata/coresponded-full-femurs/meshes/$i.stl")).get
       }

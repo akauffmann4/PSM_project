@@ -1,14 +1,8 @@
 import scalismo.ui.api._
 import scalismo.geometry._
-import scalismo.common._
-import scalismo.common.interpolation.TriangleMeshInterpolator3D
 import scalismo.mesh._
 import scalismo.io.{LandmarkIO, MeshIO, StatisticalModelIO}
-import scalismo.statisticalmodel._
-//import scalismo.registration._
 import scalismo.registration.LandmarkRegistration
-import scalismo.statisticalmodel.dataset._
-import scalismo.numerics.PivotedCholesky.RelativeTolerance
 
 object align {
 
@@ -26,7 +20,6 @@ object align {
         (mesh, meshView) // return a tuple of the mesh and the associated view
       }) .unzip // take the tuples apart, to get a sequence of meshes and one of meshViews
 
-      val reference = new java.io.File("data/femur.stl")
       val toAlign : Array[TriangleMesh[_3D]] = meshes
 
       val refLandmarks: Seq[Landmark[_3D]] =
@@ -44,7 +37,7 @@ object align {
         val rigidTrans = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks(i), refLandmarks, center = Point(0,0,0))
         val meshAligned = mesh.transform(rigidTrans)
         val landmarkAligned = landmarks(i).map(lm => lm.transform(rigidTrans))
-        val meshView = ui.show(dsGroup2, meshAligned, "meshAligned")
+        ui.show(dsGroup2, meshAligned, "meshAligned")
 
         LandmarkIO.writeLandmarksJson(landmarkAligned, new java.io.File("datasets/challenge-data/challengedata/aligned-full-femurs/landmarks/",landmarksFiles(i).getName)).get
         MeshIO.writeMesh(meshAligned, new java.io.File("datasets/challenge-data/challengedata/aligned-full-femurs/meshes/",meshFiles(i).getName)).get
