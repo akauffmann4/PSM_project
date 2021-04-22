@@ -1,12 +1,9 @@
 import scalismo.common.interpolation.TriangleMeshInterpolator3D
 import scalismo.geometry._
-import scalismo.io.{LandmarkIO, MeshIO, StatisticalModelIO}
+import scalismo.io.{MeshIO, StatisticalModelIO}
 import scalismo.kernels.{DiagonalKernel3D, GaussianKernel3D}
-import scalismo.mesh._
 import scalismo.statisticalmodel.{GaussianProcess3D, LowRankGaussianProcess, PointDistributionModel}
 import scalismo.ui.api._
-//import scalismo.registration._
-import scalismo.registration.LandmarkRegistration
 
 object BuildTheModel {
 
