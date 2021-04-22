@@ -14,9 +14,9 @@ object BuildTheModel {
       implicit val rng = scalismo.utils.Random(42L)
       val ui = ScalismoUI()
       val referenceMesh = MeshIO.readMesh( new java.io.File("data/femur.stl")).get
-      val kernelx = GaussianKernel3D(200) * 40// * GaussianKernel3D(50) * 20
-      val kernely = GaussianKernel3D(200) * 40
-      val kernelz = GaussianKernel3D(200) * 160
+      val kernelx = GaussianKernel3D(100) * 40// * GaussianKernel3D(50) * 20
+      val kernely = GaussianKernel3D(100) * 40
+      val kernelz = GaussianKernel3D(100) * 160
       val covarianceFun = DiagonalKernel3D(kernelx, kernely, kernelz)
       val gp = GaussianProcess3D[EuclideanVector[_3D]](covarianceFun)
       val interpolator = TriangleMeshInterpolator3D[EuclideanVector[_3D]]()
@@ -24,6 +24,6 @@ object BuildTheModel {
       val model = PointDistributionModel(referenceMesh, lowRankGP)
       val sample3 = model.sample()
       ui.show(ui.createGroup("model"), model, "gp-model")
-      StatisticalModelIO.writeStatisticalTriangleMeshModel3D(model, new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/GaussianProcessModel.lefile"))
+      StatisticalModelIO.writeStatisticalTriangleMeshModel3D(model, new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/GaussianProcessModel.h5"))
     }
 }

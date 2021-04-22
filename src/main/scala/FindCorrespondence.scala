@@ -19,11 +19,11 @@ object FindCorrespondence {
       val ui = ScalismoUI()
 
       var i = 10;
-      for (i <- 0 until 47)
+      for (i <- 46 until 47)
       {
 
         val targetMesh = MeshIO.readMesh(new java.io.File(s"datasets/challenge-data/challengedata/aligned-full-femurs/meshes/$i.stl")).get
-        val model = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/GaussianProcessModel.lefile")).get
+        val model = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/GaussianProcessModel.h5")).get
 
         //val targetGroup = ui.createGroup("targetGroup")
         //val targetMeshView = ui.show(targetGroup, targetMesh, "targetMesh")
@@ -97,6 +97,6 @@ object FindCorrespondence {
 
       val modelGroup2 = ui.createGroup("modelGroup2")
       ui.show(modelGroup2, modelFromDataCollection, "PCAModel")
-      StatisticalModelIO.writeStatisticalTriangleMeshModel3D(modelFromDataCollection, new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/PCAModel.lefile"))
+      StatisticalModelIO.writeStatisticalTriangleMeshModel3D(modelFromDataCollection, new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/PCAModel.h5"))
     }
 }

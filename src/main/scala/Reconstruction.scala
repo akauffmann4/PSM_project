@@ -14,11 +14,12 @@ import scalismo.utils.Random.implicits.randomGenerator
 object Reconstruction {
 
   def main(args: Array[String]): Unit = {
-
+//OPERATION: reference/target (I put this comment everywhere I'm changing back the the first projection mode: reference -> target
     val ui = ScalismoUI()
-    for (i <- 47 until 49) {
+    for (i <- 48 until 49
+         ) {
       //TO-DO: consider all partial samples
-      val PCAModel = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/PCAModel.lefile")).get
+      val PCAModel = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/PCAModel.h5")).get
       val targetTest = MeshIO.readMesh(new java.io.File(s"datasets/challenge-data/challengedata/partial-femurs/$i.stl")).get
 
       val partial = ui.createGroup("modelGroup")
@@ -28,17 +29,24 @@ object Reconstruction {
       ui.show(PCAmodel, PCAModel, "model")
 
       //Selects the points for which we want to find the correspondences - uniformly distributed on the surface
-      val sampler = UniformMeshSampler3D(targetTest, numberOfPoints = 300)
-      val points: Seq[Point[_3D]] = sampler.sample.map(pointWithProbability => pointWithProbability._1) // we only want the points
+      val sampler = UniformMeshSampler3D(PCAModel.mean, numberOfPoints = 100)//OPERATION: reference/target
+      val points: Seq[Point[_3D]] = sampler.sample.map(pointWithProbability => pointWithProbability._1).filter(pt => pt.z<= 2.0) // we only want the points
 
       //Uses point ids of the sampled points
-      val ptIds = points.map(point => targetTest.pointSet.findClosestPoint(point).id)
+      val ptIds = points.map(point => PCAModel.mean.pointSet.findClosestPoint(point).id)//OPERATION: reference/target
 
       //Finds for each point of interest the closest point on the target
+      val Vectors = ui.createGroup("Vectors")
       def attributeCorrespondences(movingMesh: TriangleMesh[_3D], ptIds: Seq[PointId]): Seq[(PointId, Point[_3D])] = {
         ptIds.map { id: PointId =>
-          val pt = movingMesh.pointSet.point(id)
-          val closestPointOnMesh2 = PCAModel.mean.pointSet.findClosestPoint(pt).point
+          val pt = PCAModel.mean.pointSet.point(id)//OPERATION: reference/target
+          val closestPointOnMesh2 = movingMesh.pointSet.findClosestPoint(pt).point//OPERATION: reference/target
+          //Uncomment next 4 lines to see the landmarks
+          //val paolaLandmark = Landmark(s"lm-${id}", closestPointOnMesh2)
+          //val paolaLandmarks = Landmark(s"lms-${id}", pt)
+          //ui.show(Vectors, paolaLandmarks, paolaLandmarks.id) //Show landmarks from mesh to be projected
+          //ui.show(Vectors, paolaLandmark, paolaLandmark.id) //Show landmarks from projected mesh
+
           (id, closestPointOnMesh2)
         }
       }
