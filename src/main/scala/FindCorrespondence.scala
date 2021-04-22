@@ -19,9 +19,9 @@ object FindCorrespondence {
       val ui = ScalismoUI()
 
       var i = 10;
-      for (i <- 46 until 47)
+      for (i <- 0 until 47)
       {
-
+        System.out.println(i)
         val targetMesh = MeshIO.readMesh(new java.io.File(s"datasets/challenge-data/challengedata/aligned-full-femurs/meshes/$i.stl")).get
         val model = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/GaussianProcessModel.h5")).get
 
