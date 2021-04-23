@@ -14,9 +14,9 @@ import scalismo.utils.Random.implicits.randomGenerator
 object Reconstruction {
 
   def main(args: Array[String]): Unit = {
-//OPERATION: reference/target (I put this comment everywhere I'm changing back the the first projection mode: reference -> target
+
     val ui = ScalismoUI()
-    for (i <- 48 until 49
+    for (i <- 47 until 57
          ) {
       //TO-DO: consider all partial samples
       val PCAModel = StatisticalModelIO.readStatisticalTriangleMeshModel3D(new java.io.File("datasets/challenge-data/challengedata/GaussianProcessModel/PCAModel.h5")).get
@@ -29,24 +29,24 @@ object Reconstruction {
       ui.show(PCAmodel, PCAModel, "model")
       //var lastmesh = PCAModel.mean
       //Selects the points for which we want to find the correspondences - uniformly distributed on the surface
-      val sampler = UniformMeshSampler3D(targetTest, numberOfPoints = 5000)//OPERATION: reference/target
+      val sampler = UniformMeshSampler3D(targetTest, numberOfPoints = 50000)
       val points: Seq[Point[_3D]] = sampler.sample.map(pointWithProbability => pointWithProbability._1)//.filter(pt => pt.z<= 2.0) // we only want the points
 
       //Uses point ids of the sampled points
-      val ptIds = points.map(point => PCAModel.mean.pointSet.findClosestPoint(point).id)//OPERATION: reference/target
+      val ptIds = points.map(point => targetTest.pointSet.findClosestPoint(point).id)
 
       //Finds for each point of interest the closest point on the target
       val Vectors = ui.createGroup("Vectors")
       def attributeCorrespondences(movingMesh: TriangleMesh[_3D], ptIds: Seq[PointId]): Seq[(PointId, Point[_3D])] = {
         ptIds.map { id: PointId =>
-          val pt = PCAModel.mean.pointSet.point(id)//OPERATION: reference/target
-          val closestPointOnMesh2 = movingMesh.pointSet.findClosestPoint(pt).point//OPERATION: reference/target
+          val pt = targetTest.pointSet.point(id)
+          val closestPointOnMesh2 = movingMesh.pointSet.findClosestPoint(pt).id
 
-          (id, closestPointOnMesh2)
+          (closestPointOnMesh2, pt)
         }
       }
 
-      val littleNoise = MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3))
+      val littleNoise = MultivariateNormalDistribution(DenseVector.zeros[Double](3), DenseMatrix.eye[Double](3)*5.0)
 
       def fitModel(correspondences: Seq[(PointId, Point[_3D])]): TriangleMesh[_3D] = {
         val regressionData = correspondences.map(correspondence =>
@@ -61,7 +61,7 @@ object Reconstruction {
       def nonrigidICP(movingMesh: TriangleMesh[_3D], ptIds: Seq[PointId], numberOfIterations: Int): TriangleMesh[_3D] = {
         if (numberOfIterations == 0) movingMesh
         else {
-          val correspondences = attributeCorrespondences(movingMesh, ptIds)
+          val correspondences = attributeCorrespondences(movingMesh, ptIds )
           val transformed = fitModel(correspondences)
           //lastmesh = transformed
           //ui.show(resultGroup, transformed, numberOfIterations.toString)
@@ -70,10 +70,11 @@ object Reconstruction {
       }
 
       //Repeats the fitting steps iteratively for 30 times
-      val finalFit = nonrigidICP(targetTest, ptIds, 30)
+      val finalFit = nonrigidICP(PCAModel.mean, ptIds, 60)
       //TO-DO: store all reconstructed samples
       val resultGroup = ui.createGroup("results")
-      ui.show(resultGroup, finalFit, "final fit")
+      //ui.show(resultGroup, finalFit, "final fit")
+      MeshIO.writeMesh(finalFit, new java.io.File(s"datasets/challenge-data/challengedata/reconstructed-femurs/$i.stl")).get
     }
 }
 
