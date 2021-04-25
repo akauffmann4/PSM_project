@@ -1,7 +1,7 @@
 import scalismo.ui.api._
 import scalismo.geometry._
 import scalismo.mesh._
-import scalismo.io.{LandmarkIO, MeshIO, StatisticalModelIO}
+import scalismo.io.{LandmarkIO, MeshIO}
 import scalismo.registration.LandmarkRegistration
 
 object align {
@@ -25,7 +25,7 @@ object align {
       val refLandmarks: Seq[Landmark[_3D]] =
         LandmarkIO.readLandmarksJson3D(new java.io.File("data/femur.json")).get
 
-      var landmarksFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/landmarks/").listFiles
+      val landmarksFiles = new java.io.File("datasets/challenge-data/challengedata/full-femurs/landmarks/").listFiles
 
       val landmarks: Array[Seq[Landmark[_3D]]]= landmarksFiles.map { file =>
         LandmarkIO.readLandmarksJson3D(file).get
@@ -33,12 +33,14 @@ object align {
 
       var i = 0
       val dsGroup2 = ui.createGroup("datasetsAligned")
-      val alignedMeshes = toAlign.map { mesh =>
+
+      //for each mesh, identifies the corresponding landmark points and then rigidly align the mesh to the reference
+      toAlign.map { mesh =>
         val rigidTrans = LandmarkRegistration.rigid3DLandmarkRegistration(landmarks(i), refLandmarks, center = Point(0,0,0))
         val meshAligned = mesh.transform(rigidTrans)
         val landmarkAligned = landmarks(i).map(lm => lm.transform(rigidTrans))
         ui.show(dsGroup2, meshAligned, "meshAligned")
-
+        //Stores the aligned mesh and landmarks
         LandmarkIO.writeLandmarksJson(landmarkAligned, new java.io.File("datasets/challenge-data/challengedata/aligned-full-femurs/landmarks/",landmarksFiles(i).getName)).get
         MeshIO.writeMesh(meshAligned, new java.io.File("datasets/challenge-data/challengedata/aligned-full-femurs/meshes/",meshFiles(i).getName)).get
 
